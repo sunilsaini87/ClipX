@@ -108,67 +108,57 @@ export const postTwitter = async (req, res, next) => {
   };
 
   try {
-    axios
-      .request(options)
-      .then((response) => {
-        const data = response.data;
-        let dataList = [];
+    const response = await axios.request(options);
+    const data = response.data;
+    const dataList = [];
 
-        let dataUrl = data[0].urls;
+    const dataUrl = data[0].urls;
 
-        for (let i = 0; i < dataUrl.length; i++) {
-          aufs(dataUrl[i].url, "MB")
-            .then((size) => {
-              dataList.push({
-                url: dataUrl[i].url,
-                quality: dataUrl[i].subName + "P",
-                size: size.toFixed(1),
-              });
-            })
-            .then((result) => {
-              console.log(dataList);
-              if (dataList.length === dataUrl.length) {
-                res.status(200).json({
-                  thumb: data[0]["pictureUrl"],
-                  urls: dataList,
-                  title: data[0]["meta"]["title"],
-                });
-                req.users
-                  .addActivity({ twUrl: twUrl })
-                  .then((result) => {
-                    console.log(result);
-                  })
-                  .catch((err) => {
-                    const error = new Error(err);
-                    error.httpStatusCode = 500;
-                    return next(error);
-                  });
-              }
-            });
-        }
-      })
-      .catch((err) => {
-        res.status(403).json({
-          status: "fail",
-          error:
-            "Sorry, we couldn't locate the video you're looking for. It's possible that the video is set to private or has been removed.",
-          code: 403,
-        });
+    const sizePromises = dataUrl.map(async (urlObj) => {
+      const size = await aufs(urlObj.url, "MB");
+      dataList.push({
+        url: urlObj.url,
+        quality: `${urlObj.subName}P`,
+        size: size.toFixed(1),
+      });
+    });
 
+    await Promise.all(sizePromises);
+
+    if (dataList.length === dataUrl.length) {
+      res.status(200).json({
+        thumb: data[0].pictureUrl,
+        urls: dataList,
+        title: data[0].meta.title,
+      });
+
+      try {
+        const result = await req.users.addActivity({ twUrl });
+        console.log(result);
+      } catch (err) {
         const error = new Error(err);
         error.httpStatusCode = 500;
         return next(error);
+      }
+    }
+  } catch (err) {
+    if (err.response && err.response.status === 403) {
+      res.status(403).json({
+        status: "fail",
+        error:
+          "Sorry, we couldn't locate the video you're looking for. It's possible that the video is set to private or has been removed.",
+        code: 403,
       });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      status: "fail",
-      error: "An unexpected error occurred. Please try again later.",
-      code: 500,
-    });
-    const err = new Error(error);
-    err.httpStatusCode = 500;
-    return next(err);
+    } else {
+      res.status(500).json({
+        status: "fail",
+        error: "An unexpected error occurred. Please try again later.",
+        code: 500,
+      });
+    }
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    return next(error);
   }
 };
 
