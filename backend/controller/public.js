@@ -3,7 +3,7 @@ import "dotenv/config";
 import aufs from "all-url-file-size";
 
 export const startApi = (req, res, next) => {
-  res.status(200).json({ message: "Welcome To Vidown Api" });
+  res.status(200).json({ message: "Welcome To ClipX Api" });
 };
 
 export const postYoutube = (req, res, next) => {

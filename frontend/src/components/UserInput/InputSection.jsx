@@ -21,7 +21,7 @@ const InputSection = (props) => {
       if (userInput.includes("youtu")) {
         type = "yt";
       }
-      if (userInput.includes("twitter.com")) {
+      if (userInput.includes("x.com") || userInput.includes("twitter.com")) {
         type = "tw";
       }
 
