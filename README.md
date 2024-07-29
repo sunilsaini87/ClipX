@@ -15,7 +15,7 @@ ClipX is a versatile post/video downloader application that allows users to down
 ## Features
 
 - Download videos and posts from YouTube, Twitter, Facebook, and Instagram.
-- User-friendly interface with responsive design.
+- User-friendly interface with responsive design with tailwind css.
 - Real-time loading indicators and error handling.
 - Easy-to-use URL input field for fetching content.
 
@@ -32,12 +32,13 @@ ClipX is a versatile post/video downloader application that allows users to down
 - Node.js
 - Express.js
 - MongoDB
+- openapi
 
 ## Installation
 
 ### Prerequisites
 
-- Node.js (>=14.x)
+- Node.js
 - npm or yarn
 - MongoDB (local or MongoDB Atlas)
 
